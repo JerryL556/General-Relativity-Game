@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relativity Sandbox</title>
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <canvas id="scene" aria-label="3D relativity scene"></canvas>
+
+    <aside class="panel panel-left">
+      <div class="eyebrow">Relativity Sandbox</div>
+      <h1>Curved Space, Slower Time</h1>
+      <p class="lede">
+        Adjust a central mass, launch a probe or photon, and compare local time
+        near the mass against a distant reference clock.
+      </p>
+
+      <div class="control-group">
+        <label for="massRange">Central Mass</label>
+        <input id="massRange" type="range" min="10" max="220" step="1" value="70" />
+        <div class="value-row">
+          <span>Mass scale</span>
+          <strong id="massValue">70</strong>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="orbit">Orbit</option>
+          <option value="light">Light Bending</option>
+          <option value="fall">Free Fall</option>
+          <option value="compare">Time Dilation</option>
+        </select>
+      </div>
+
+      <div class="button-row">
+        <button id="launchProbe">Launch Probe</button>
+        <button id="launchPhoton">Launch Photon</button>
+        <button id="resetScene" class="button-ghost">Reset</button>
+      </div>
+
+      <div class="button-row preset-row">
+        <button data-preset="earth">Earth-Like</button>
+        <button data-preset="star">Dense Star</button>
+        <button data-preset="extreme">Extreme</button>
+      </div>
+    </aside>
+
+    <aside class="panel panel-right">
+      <div class="stats">
+        <div class="stat-card">
+          <span>Reference Clock</span>
+          <strong id="referenceClock">0.00 s</strong>
+        </div>
+        <div class="stat-card">
+          <span>Near-Mass Clock</span>
+          <strong id="localClock">0.00 s</strong>
+        </div>
+        <div class="stat-card">
+          <span>Clock Ratio</span>
+          <strong id="dilationValue">1.000x</strong>
+        </div>
+      </div>
+
+      <div class="explanation">
+        <h2 id="modeTitle">Orbit</h2>
+        <p id="modeDescription">
+          A moving probe curves around the mass. Higher mass deepens the gravity
+          well and also slows local time.
+        </p>
+      </div>
+
+      <div class="legend">
+        <div><span class="swatch swatch-mass"></span> Central mass</div>
+        <div><span class="swatch swatch-probe"></span> Probe</div>
+        <div><span class="swatch swatch-photon"></span> Photon path</div>
+        <div><span class="swatch swatch-grid"></span> Warped spatial grid</div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="./vendor/three.min.js"></script>
+  <script src="./src/simulation/metric.js"></script>
+  <script src="./src/simulation/integrator.js"></script>
+  <script src="./src/simulation/scenarios.js"></script>
+  <script src="./src/simulation/entities.js"></script>
+  <script src="./src/render/gridWarp.js"></script>
+  <script src="./src/render/lensing.js"></script>
+  <script src="./src/render/trails.js"></script>
+  <script src="./src/render/scene.js"></script>
+  <script src="./src/ui/hud.js"></script>
+  <script src="./src/main.js"></script>
+</body>
+</html>
