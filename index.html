@@ -37,9 +37,46 @@
         </select>
       </div>
 
+      <div class="control-group object-controls">
+        <label for="objectType">Moving Object</label>
+        <select id="objectType">
+          <option value="probe">Probe</option>
+          <option value="photon">Photon</option>
+        </select>
+
+        <label for="objectSpeed">Launch Speed</label>
+        <input id="objectSpeed" type="range" min="1" max="20" step="0.1" value="6.5" />
+        <div class="value-row">
+          <span>Speed scale</span>
+          <strong id="speedValue">6.5</strong>
+        </div>
+
+        <label for="objectDirection">Direction</label>
+        <input id="objectDirection" type="range" min="0" max="359" step="1" value="90" />
+        <div class="value-row">
+          <span>Heading</span>
+          <strong id="directionValue">90 deg</strong>
+        </div>
+
+        <label for="objectMass">Object Mass</label>
+        <input id="objectMass" type="range" min="1" max="40" step="0.5" value="8" />
+        <div class="value-row">
+          <span>Test mass</span>
+          <strong id="objectMassValue">8.0</strong>
+        </div>
+
+        <p class="control-note" id="placementHint">
+          Right-click and drag on the spacetime grid to place, aim, and launch the next object.
+        </p>
+        <div class="value-row placement-row">
+          <span>Placement</span>
+          <strong id="placementValue">x: 0.0, z: 26.0</strong>
+        </div>
+      </div>
+
       <div class="button-row">
-        <button id="launchProbe">Launch Probe</button>
-        <button id="launchPhoton">Launch Photon</button>
+        <button id="placeObject">Right-Drag To Aim</button>
+        <button id="launchObject">Launch From Marker</button>
         <button id="resetScene" class="button-ghost">Reset</button>
       </div>
 
@@ -63,6 +100,10 @@
         <div class="stat-card">
           <span>Clock Ratio</span>
           <strong id="dilationValue">1.000x</strong>
+        </div>
+        <div class="stat-card">
+          <span>Tracked Object Speed</span>
+          <strong id="trackedSpeed">0.00</strong>
         </div>
       </div>
 

@@ -11,13 +11,34 @@
     };
   }
 
-  function createProbe(mode, mass) {
+  function createProbe(mode, mass, config) {
+    if (config) {
+      const position = new THREE.Vector3(config.position.x, 0, config.position.z);
+      const heading = THREE.MathUtils.degToRad(config.headingDeg);
+      const probe = {
+        type: "probe",
+        label: "Probe",
+        position: position,
+        velocity: new THREE.Vector3(
+          Math.cos(heading) * config.speed,
+          0,
+          Math.sin(heading) * config.speed,
+        ),
+        objectMass: config.objectMass,
+        color: 0x7cf7b6,
+        alive: true,
+      };
+      metric.constrainToSurface(probe, mass);
+      return probe;
+    }
+
     if (mode === "fall") {
       const probe = {
         type: "probe",
         label: "Probe",
         position: new THREE.Vector3(28, 0, 0),
         velocity: new THREE.Vector3(0, 0, -1.6),
+        objectMass: 8,
         color: 0x7cf7b6,
         alive: true,
       };
@@ -32,6 +53,7 @@
       label: "Probe",
       position: position,
       velocity: new THREE.Vector3(speed, 0, 0),
+      objectMass: 8,
       color: 0x7cf7b6,
       alive: true,
     };
@@ -39,15 +61,36 @@
     return probe;
   }
 
-  function createPhoton() {
+  function createPhoton(config, mass) {
+    if (config) {
+      const heading = THREE.MathUtils.degToRad(config.headingDeg);
+      const photon = {
+        type: "photon",
+        label: "Photon",
+        position: new THREE.Vector3(config.position.x, 0, config.position.z),
+        velocity: metric.normalizeSpeed(new THREE.Vector3(
+          Math.cos(heading),
+          0,
+          Math.sin(heading),
+        ), config.speed),
+        objectMass: 0,
+        color: 0xff9f69,
+        alive: true,
+      };
+      metric.constrainToSurface(photon, mass);
+      return photon;
+    }
+
     const photon = {
       type: "photon",
       label: "Photon",
       position: new THREE.Vector3(-75, 0, 24),
       velocity: metric.normalizeSpeed(new THREE.Vector3(1, 0, -0.08)),
+      objectMass: 0,
       color: 0xff9f69,
       alive: true,
     };
+    metric.constrainToSurface(photon, mass);
     return photon;
   }
 
@@ -68,7 +111,7 @@
 
   function resetState(state, mass, mode) {
     state.mass = mass;
-    state.entities = [createProbe(mode, mass)];
+    state.entities = [];
     state.clocks = createClocks();
     state.elapsed = 0;
   }
@@ -78,7 +121,19 @@
   }
 
   function spawnPhoton(state) {
-    state.entities.push(createPhoton());
+    state.entities.push(createPhoton(null, state.mass));
+  }
+
+  function spawnConfiguredEntity(state, mode, config) {
+    if (config.type === "photon") {
+      const photon = createPhoton(config, state.mass);
+      state.entities.push(photon);
+      return photon;
+    }
+
+    const probe = createProbe(mode, state.mass, config);
+    state.entities.push(probe);
+    return probe;
   }
 
   function setMass(state, mass) {
@@ -144,6 +199,7 @@
     resetState,
     spawnProbe,
     spawnPhoton,
+    spawnConfiguredEntity,
     setMass,
     updateSimulation,
   };

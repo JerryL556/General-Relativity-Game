@@ -105,6 +105,10 @@ h1 {
   margin-top: 18px;
 }
 
+.object-controls label:not(:first-child) {
+  margin-top: 14px;
+}
+
 .control-group label,
 .value-row,
 .stat-card span {
@@ -117,6 +121,17 @@ h1 {
   display: flex;
   justify-content: space-between;
   margin-top: 8px;
+}
+
+.control-note {
+  margin-top: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.88rem;
+}
+
+.placement-row {
+  margin-top: 10px;
 }
 
 input,

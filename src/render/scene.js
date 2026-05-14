@@ -6,6 +6,7 @@
       radius: 55,
       target: new THREE.Vector3(0, -3, 0),
       dragging: false,
+      enabled: true,
       pointerX: 0,
       pointerY: 0,
     };
@@ -21,6 +22,9 @@
     }
 
     canvas.addEventListener("pointerdown", function (event) {
+      if (!state.enabled || event.button !== 0) {
+        return;
+      }
       state.dragging = true;
       state.pointerX = event.clientX;
       state.pointerY = event.clientY;
@@ -28,7 +32,7 @@
     });
 
     canvas.addEventListener("pointermove", function (event) {
-      if (!state.dragging) {
+      if (!state.enabled || !state.dragging) {
         return;
       }
 
@@ -51,6 +55,9 @@
     canvas.addEventListener("pointerup", stopDragging);
     canvas.addEventListener("pointercancel", stopDragging);
     canvas.addEventListener("wheel", function (event) {
+      if (!state.enabled) {
+        return;
+      }
       event.preventDefault();
       state.radius = Math.min(120, Math.max(16, state.radius + event.deltaY * 0.02));
     }, { passive: false });
@@ -59,6 +66,12 @@
 
     return {
       update: applyCamera,
+      setEnabled: function (enabled) {
+        state.enabled = enabled;
+        if (!enabled) {
+          state.dragging = false;
+        }
+      },
     };
   }
 

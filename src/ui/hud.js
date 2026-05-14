@@ -5,18 +5,40 @@
     const massRange = document.getElementById("massRange");
     const massValue = document.getElementById("massValue");
     const modeSelect = document.getElementById("modeSelect");
+    const objectType = document.getElementById("objectType");
+    const objectSpeed = document.getElementById("objectSpeed");
+    const speedValue = document.getElementById("speedValue");
+    const objectDirection = document.getElementById("objectDirection");
+    const directionValue = document.getElementById("directionValue");
+    const objectMass = document.getElementById("objectMass");
+    const objectMassValue = document.getElementById("objectMassValue");
+    const placementHint = document.getElementById("placementHint");
+    const placementValue = document.getElementById("placementValue");
     const referenceClock = document.getElementById("referenceClock");
     const localClock = document.getElementById("localClock");
     const dilationValue = document.getElementById("dilationValue");
+    const trackedSpeed = document.getElementById("trackedSpeed");
     const modeTitle = document.getElementById("modeTitle");
     const modeDescription = document.getElementById("modeDescription");
-    const launchProbe = document.getElementById("launchProbe");
-    const launchPhoton = document.getElementById("launchPhoton");
+    const placeObject = document.getElementById("placeObject");
+    const launchObject = document.getElementById("launchObject");
     const resetScene = document.getElementById("resetScene");
     const presetButtons = Array.prototype.slice.call(document.querySelectorAll("[data-preset]"));
 
     function setMassLabel(value) {
       massValue.textContent = String(value);
+    }
+
+    function setSpeedLabel(value) {
+      speedValue.textContent = Number(value).toFixed(1);
+    }
+
+    function setDirectionLabel(value) {
+      directionValue.textContent = String(Math.round(Number(value))) + " deg";
+    }
+
+    function setObjectMassLabel(value) {
+      objectMassValue.textContent = Number(value).toFixed(1);
     }
 
     function setMode(mode) {
@@ -31,12 +53,31 @@
       dilationValue.textContent = ratio.toFixed(3) + "x";
     }
 
+    function setTrackedSpeed(speed, label) {
+      if (!label) {
+        trackedSpeed.textContent = speed.toFixed(2);
+        return;
+      }
+      trackedSpeed.textContent = speed.toFixed(2) + " " + label;
+    }
+
     setMassLabel(massRange.value);
+    setSpeedLabel(objectSpeed.value);
+    setDirectionLabel(objectDirection.value);
+    setObjectMassLabel(objectMass.value);
     setMode(modeSelect.value);
 
     return {
       getMass: function () { return Number(massRange.value); },
       getMode: function () { return modeSelect.value; },
+      getLaunchConfig: function () {
+        return {
+          type: objectType.value,
+          speed: Number(objectSpeed.value),
+          headingDeg: Number(objectDirection.value),
+          objectMass: Number(objectMass.value),
+        };
+      },
       onMassChange: function (handler) {
         massRange.addEventListener("input", function () {
           setMassLabel(massRange.value);
@@ -49,11 +90,26 @@
           handler(modeSelect.value);
         });
       },
-      onLaunchProbe: function (handler) {
-        launchProbe.addEventListener("click", handler);
+      onObjectConfigChange: function (handler) {
+        objectType.addEventListener("change", handler);
+        objectSpeed.addEventListener("input", function () {
+          setSpeedLabel(objectSpeed.value);
+          handler();
+        });
+        objectDirection.addEventListener("input", function () {
+          setDirectionLabel(objectDirection.value);
+          handler();
+        });
+        objectMass.addEventListener("input", function () {
+          setObjectMassLabel(objectMass.value);
+          handler();
+        });
       },
-      onLaunchPhoton: function (handler) {
-        launchPhoton.addEventListener("click", handler);
+      onPlaceObject: function (handler) {
+        placeObject.addEventListener("click", handler);
+      },
+      onLaunchObject: function (handler) {
+        launchObject.addEventListener("click", handler);
       },
       onReset: function (handler) {
         resetScene.addEventListener("click", handler);
@@ -69,10 +125,21 @@
           });
         });
       },
+      setPlacementValue: function (x, z) {
+        placementValue.textContent = "x: " + x.toFixed(1) + ", z: " + z.toFixed(1);
+      },
+      setPlacementHint: function (text) {
+        placementHint.textContent = text;
+      },
+      setLaunchHeading: function (headingDeg) {
+        objectDirection.value = String(Math.round(headingDeg));
+        setDirectionLabel(headingDeg);
+      },
       setClockValues: setClockValues,
+      setTrackedSpeed: setTrackedSpeed,
     };
   }
 
   window.Relativity = window.Relativity || {};
-  window.Relativity.hud = { createHud };
+  window.Relativity.hud = { createHud: createHud };
 })();
