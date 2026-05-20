@@ -12,10 +12,15 @@
     const directionValue = document.getElementById("directionValue");
     const objectMass = document.getElementById("objectMass");
     const objectMassValue = document.getElementById("objectMassValue");
+    const farClockRadius = document.getElementById("farClockRadius");
+    const farClockRadiusValue = document.getElementById("farClockRadiusValue");
+    const nearClockRadius = document.getElementById("nearClockRadius");
+    const nearClockRadiusValue = document.getElementById("nearClockRadiusValue");
+    const experimentSummary = document.getElementById("experimentSummary");
     const placementHint = document.getElementById("placementHint");
     const placementValue = document.getElementById("placementValue");
-    const referenceClock = document.getElementById("referenceClock");
-    const localClock = document.getElementById("localClock");
+    const farClock = document.getElementById("farClock");
+    const nearClock = document.getElementById("nearClock");
     const dilationValue = document.getElementById("dilationValue");
     const trackedSpeed = document.getElementById("trackedSpeed");
     const modeTitle = document.getElementById("modeTitle");
@@ -41,15 +46,26 @@
       objectMassValue.textContent = Number(value).toFixed(1);
     }
 
+    function setClockRadiusLabels(far, near) {
+      farClockRadiusValue.textContent = String(Math.round(Number(far)));
+      nearClockRadiusValue.textContent = String(Math.round(Number(near)));
+    }
+
+    function setExperimentSummary(far, near) {
+      experimentSummary.textContent =
+        "Near clock at r = " + Math.round(Number(near)) +
+        ", far clock at r = " + Math.round(Number(far)) + ".";
+    }
+
     function setMode(mode) {
       const content = scenarios.MODE_CONTENT[mode];
       modeTitle.textContent = content.title;
       modeDescription.textContent = content.description;
     }
 
-    function setClockValues(reference, local, ratio) {
-      referenceClock.textContent = reference.toFixed(2) + " s";
-      localClock.textContent = local.toFixed(2) + " s";
+    function setClockValues(far, near, ratio) {
+      farClock.textContent = far.toFixed(2) + " s";
+      nearClock.textContent = near.toFixed(2) + " s";
       dilationValue.textContent = ratio.toFixed(3) + "x";
     }
 
@@ -65,6 +81,8 @@
     setSpeedLabel(objectSpeed.value);
     setDirectionLabel(objectDirection.value);
     setObjectMassLabel(objectMass.value);
+    setClockRadiusLabels(farClockRadius.value, nearClockRadius.value);
+    setExperimentSummary(farClockRadius.value, nearClockRadius.value);
     setMode(modeSelect.value);
 
     return {
@@ -76,6 +94,12 @@
           speed: Number(objectSpeed.value),
           headingDeg: Number(objectDirection.value),
           objectMass: Number(objectMass.value),
+        };
+      },
+      getClockRadii: function () {
+        return {
+          far: Number(farClockRadius.value),
+          near: Number(nearClockRadius.value),
         };
       },
       onMassChange: function (handler) {
@@ -104,6 +128,19 @@
           setObjectMassLabel(objectMass.value);
           handler();
         });
+      },
+      onClockRadiusChange: function (handler) {
+        function emit() {
+          setClockRadiusLabels(farClockRadius.value, nearClockRadius.value);
+          setExperimentSummary(farClockRadius.value, nearClockRadius.value);
+          handler({
+            far: Number(farClockRadius.value),
+            near: Number(nearClockRadius.value),
+          });
+        }
+
+        farClockRadius.addEventListener("input", emit);
+        nearClockRadius.addEventListener("input", emit);
       },
       onPlaceObject: function (handler) {
         placeObject.addEventListener("click", handler);
@@ -135,8 +172,15 @@
         objectDirection.value = String(Math.round(headingDeg));
         setDirectionLabel(headingDeg);
       },
+      setClockRadii: function (far, near) {
+        farClockRadius.value = String(Math.round(far));
+        nearClockRadius.value = String(Math.round(near));
+        setClockRadiusLabels(far, near);
+        setExperimentSummary(far, near);
+      },
       setClockValues: setClockValues,
       setTrackedSpeed: setTrackedSpeed,
+      setExperimentSummary: setExperimentSummary,
     };
   }
 

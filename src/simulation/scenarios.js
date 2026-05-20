@@ -23,9 +23,9 @@
           "Starting with less sideways motion reveals the direct pull inward. Near the mass, spatial curvature and time dilation both become stronger.",
       },
       compare: {
-        title: "Time Dilation",
+        title: "Two-Clock Experiment",
         description:
-          "The near-mass clock accumulates proper time more slowly than a distant reference clock. Mass changes the rate immediately.",
+          "Hold two clocks at fixed radii and compare their accumulated proper time directly. Bringing the near clock inward slows it immediately, while the far clock serves as the distant control.",
       },
     },
   };

@@ -96,12 +96,12 @@
 
   function createClocks() {
     return {
-      reference: {
+      far: {
         coordinateTime: 0,
         properTime: 0,
         radius: 80,
       },
-      local: {
+      near: {
         coordinateTime: 0,
         properTime: 0,
         radius: 18,
@@ -112,7 +112,10 @@
   function resetState(state, mass, mode) {
     state.mass = mass;
     state.entities = [];
-    state.clocks = createClocks();
+    state.clocks.far.coordinateTime = 0;
+    state.clocks.far.properTime = 0;
+    state.clocks.near.coordinateTime = 0;
+    state.clocks.near.properTime = 0;
     state.elapsed = 0;
   }
 
@@ -140,16 +143,11 @@
     state.mass = mass;
   }
 
-  function currentLocalClockRadius(state) {
-    const probe = state.entities.find(function (entity) {
-      return entity.type === "probe";
-    });
-
-    if (!probe) {
-      return state.clocks.local.radius;
-    }
-
-    return Math.max(6, metric.safeRadius(probe.position));
+  function setClockRadii(state, radii) {
+    const nearRadius = Math.max(6, Math.min(Number(radii.near), 159));
+    const farRadius = Math.max(nearRadius + 1, Math.min(Number(radii.far), 160));
+    state.clocks.near.radius = nearRadius;
+    state.clocks.far.radius = farRadius;
   }
 
   function updateSimulation(state, dt) {
@@ -179,17 +177,17 @@
       return entity.alive;
     });
 
-    const localRadius = currentLocalClockRadius(state);
-    const localDilation = metric.timeDilationFactor(localRadius, state.mass);
-    const referenceDilation = metric.timeDilationFactor(state.clocks.reference.radius, state.mass);
+    const nearDilation = metric.timeDilationFactor(state.clocks.near.radius, state.mass);
+    const farDilation = metric.timeDilationFactor(state.clocks.far.radius, state.mass);
 
-    integrator.updateClock(state.clocks.reference, dt, referenceDilation);
-    integrator.updateClock(state.clocks.local, dt, localDilation);
+    integrator.updateClock(state.clocks.far, dt, farDilation);
+    integrator.updateClock(state.clocks.near, dt, nearDilation);
 
     return {
-      localRadius: localRadius,
-      localDilation: localDilation,
-      referenceDilation: referenceDilation,
+      nearRadius: state.clocks.near.radius,
+      farRadius: state.clocks.far.radius,
+      nearDilation: nearDilation,
+      farDilation: farDilation,
     };
   }
 
@@ -201,6 +199,7 @@
     spawnPhoton,
     spawnConfiguredEntity,
     setMass,
+    setClockRadii,
     updateSimulation,
   };
 })();

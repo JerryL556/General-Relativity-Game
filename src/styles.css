@@ -7,6 +7,8 @@
   --muted: #9ab8d4;
   --accent: #7bd8ff;
   --accent-strong: #ffca67;
+  --far-clock: #8cc8ff;
+  --near-clock: #7cf7b6;
   --probe: #7cf7b6;
   --photon: #ff9f69;
   --grid: #4ca0ff;
@@ -105,6 +107,18 @@ h1 {
   margin-top: 18px;
 }
 
+.control-group-title,
+.summary-label {
+  color: var(--accent);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.control-group-title {
+  margin-bottom: 10px;
+}
+
 .object-controls label:not(:first-child) {
   margin-top: 14px;
 }
@@ -184,6 +198,20 @@ button:hover {
   gap: 10px;
 }
 
+.experiment-summary {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(123, 216, 255, 0.12), rgba(255, 202, 103, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.experiment-summary strong {
+  display: block;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
 .stat-card {
   padding: 14px;
   border-radius: 16px;
@@ -217,6 +245,8 @@ button:hover {
 }
 
 .swatch-mass { background: var(--accent-strong); }
+.swatch-near-clock { background: var(--near-clock); }
+.swatch-far-clock { background: var(--far-clock); }
 .swatch-probe { background: var(--probe); }
 .swatch-photon { background: var(--photon); }
 .swatch-grid { background: var(--grid); }

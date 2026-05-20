@@ -13,6 +13,7 @@
 
   const state = entitiesApi.createSimulationState(hud.getMass());
   entitiesApi.resetState(state, hud.getMass(), hud.getMode());
+  entitiesApi.setClockRadii(state, hud.getClockRadii());
   let trackedEntity = null;
   const launchPlacement = { x: 0, z: 26 };
 
@@ -35,11 +36,13 @@
     start: { x: launchPlacement.x, z: launchPlacement.z },
     current: { x: launchPlacement.x + 8, z: launchPlacement.z },
   };
-  sceneApp.scene.add(clockMarkers.reference, clockMarkers.local);
+  sceneApp.scene.add(clockMarkers.far, clockMarkers.near);
   sceneApp.scene.add(placementMarker);
   hud.setPlacementValue(launchPlacement.x, launchPlacement.z);
   hud.setPlacementHint("Right-click and drag on the spacetime grid to place, aim, and launch the next object.");
   hud.setClockValues(0, 0, 1);
+  hud.setClockRadii(state.clocks.far.radius, state.clocks.near.radius);
+  hud.setExperimentSummary(state.clocks.far.radius, state.clocks.near.radius);
   hud.setTrackedSpeed(0, "");
   syncObjectsToSurface();
 
@@ -52,9 +55,16 @@
 
   hud.onModeChange(function (mode) {
     entitiesApi.resetState(state, hud.getMass(), mode);
+    entitiesApi.setClockRadii(state, hud.getClockRadii());
     trackedEntity = null;
     clearEntityMeshes();
     resetDisplayState();
+    syncObjectsToSurface();
+  });
+
+  hud.onClockRadiusChange(function (radii) {
+    entitiesApi.setClockRadii(state, radii);
+    hud.setClockRadii(state.clocks.far.radius, state.clocks.near.radius);
     syncObjectsToSurface();
   });
 
@@ -81,6 +91,7 @@
 
   hud.onReset(function () {
     entitiesApi.resetState(state, hud.getMass(), hud.getMode());
+    entitiesApi.setClockRadii(state, hud.getClockRadii());
     trackedEntity = null;
     clearEntityMeshes();
     resetDisplayState();
@@ -92,6 +103,7 @@
     gridApi.updateWarpGrid(grid, data.mass);
     lensingApi.updateMassVisualization(massObject, data.mass);
     entitiesApi.resetState(state, data.mass, hud.getMode());
+    entitiesApi.setClockRadii(state, hud.getClockRadii());
     trackedEntity = null;
     clearEntityMeshes();
     resetDisplayState();
@@ -180,18 +192,18 @@
     requestAnimationFrame(animate);
 
     const dt = Math.min(clock.getDelta(), 0.033);
-    const clockState = entitiesApi.updateSimulation(state, dt);
+    entitiesApi.updateSimulation(state, dt);
 
     syncEntityMeshes();
     trailManager.sync(state.entities);
     trailManager.update(state.entities);
-    updateClockMarkers(clockState.localRadius);
+    updateClockMarkers();
     updateMassPulse(state.elapsed);
 
-    const ratio = state.clocks.local.properTime / Math.max(0.0001, state.clocks.reference.properTime);
+    const ratio = state.clocks.near.properTime / Math.max(0.0001, state.clocks.far.properTime);
     hud.setClockValues(
-      state.clocks.reference.properTime,
-      state.clocks.local.properTime,
+      state.clocks.far.properTime,
+      state.clocks.near.properTime,
       ratio,
     );
     updateTrackedSpeed();
@@ -249,7 +261,7 @@
 
   function createClockMarkers() {
     const geometry = new THREE.RingGeometry(1.5, 1.95, 48);
-    const reference = new THREE.Mesh(
+    const far = new THREE.Mesh(
       geometry,
       new THREE.MeshBasicMaterial({
         color: 0x8cc8ff,
@@ -258,10 +270,10 @@
         opacity: 0.75,
       }),
     );
-    reference.rotation.x = -Math.PI / 2;
-    reference.position.set(0, -0.2, 80);
+    far.rotation.x = -Math.PI / 2;
+    far.position.set(0, -0.2, 80);
 
-    const local = new THREE.Mesh(
+    const near = new THREE.Mesh(
       geometry.clone(),
       new THREE.MeshBasicMaterial({
         color: 0x7cf7b6,
@@ -270,10 +282,10 @@
         opacity: 0.75,
       }),
     );
-    local.rotation.x = -Math.PI / 2;
-    local.position.set(0, -0.2, 18);
+    near.rotation.x = -Math.PI / 2;
+    near.position.set(0, -0.2, 18);
 
-    return { reference: reference, local: local };
+    return { far: far, near: near };
   }
 
   function createPlacementMarker() {
@@ -308,9 +320,9 @@
     return marker;
   }
 
-  function updateClockMarkers(localRadius) {
-    clockMarkers.reference.position.copy(metricApi.surfacePoint(0, 80, state.mass, 0.06));
-    clockMarkers.local.position.copy(metricApi.surfacePoint(0, localRadius, state.mass, 0.06));
+  function updateClockMarkers() {
+    clockMarkers.far.position.copy(metricApi.surfacePoint(0, state.clocks.far.radius, state.mass, 0.06));
+    clockMarkers.near.position.copy(metricApi.surfacePoint(0, state.clocks.near.radius, state.mass, 0.06));
   }
 
   function updateMassPulse(elapsed) {
@@ -326,7 +338,7 @@
     });
     massObject.position.copy(metricApi.surfacePoint(0, 0, state.mass, 2.2));
     syncPlacementMarker();
-    updateClockMarkers(state.clocks.local.radius);
+    updateClockMarkers();
   }
 
   function updateTrackedSpeed() {
